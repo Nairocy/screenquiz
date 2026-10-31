@@ -14,6 +14,10 @@
 - **悬浮球**：单击开关引擎、拖动挪位置、长按打开本应用；中央显示剩余局数
 - **点击位置校准**：画布按钮（PK 入口 / 退出 X / 匹配返回）用悬浮准星摆位；校准条可自由拖动、1px 微调、「试一下」直接验证落点
 
+## 下载
+
+预构建 APK 与作者自用词库（6,844 词）见 [Releases](https://github.com/Nairocy/screenquiz/releases)。
+
 ## 构建
 
 环境：**JDK 21**、Android SDK **36**（compileSdk 36 / minSdk 30 / targetSdk 36）。
