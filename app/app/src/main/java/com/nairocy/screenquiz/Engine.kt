@@ -182,6 +182,7 @@ class Engine(
             PageState.WORDBOOK -> handleWordbook()
             PageState.TRANSITION -> handleTransition(snapshot)
             PageState.UNKNOWN -> handleUnknown()
+            else -> Unit   // 学习页（打卡）由 DakaEngine 接管，对战引擎不处理
         }
     }
 

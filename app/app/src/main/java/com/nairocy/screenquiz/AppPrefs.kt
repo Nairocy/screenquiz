@@ -14,6 +14,13 @@ object AppPrefs {
     const val KEY_OVERLAY_Y = "overlay_y"
     const val KEY_HUD_X = "calib_hud_x"
     const val KEY_HUD_Y = "calib_hud_y"
+    const val KEY_MULTI_HUD_X = "calib_multi_hud_x"
+    const val KEY_MULTI_HUD_Y = "calib_multi_hud_y"
+    const val KEY_DAKA_OVERLAY = "daka_overlay"
+    const val KEY_DAKA_OVERLAY_X = "daka_overlay_x"
+    const val KEY_DAKA_OVERLAY_Y = "daka_overlay_y"
+    const val KEY_DAKA_RUNNING = "daka_running"
+    const val KEY_DAKA_QUEUE = "daka_queue"
 
     fun get(context: Context): SharedPreferences =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)

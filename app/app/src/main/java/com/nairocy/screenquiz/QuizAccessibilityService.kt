@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Toast
 import kotlin.random.Random
 
 class QuizAccessibilityService : AccessibilityService(), UiOps {
@@ -25,9 +26,25 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
     }
     private val pageReader by lazy { PageReader(EcdictDb.get(this)) }
     private var overlay: OverlayBall? = null
+    private var dakaOverlay: DakaOverlay? = null
+    @Volatile private var lastWindowClass: String? = null
     private var calibMarker: CalibrationMarker? = null
     private var calibHud: CalibrationHud? = null
     private var calibTarget: TapPoint? = null
+    // 多点校准：一次摆 N 个准星（打卡的 4 个选项块）
+    private val multiTargets = ArrayList<TapPoint>()
+    private val multiMarkers = ArrayList<CalibrationMarker>()
+    private var multiHud: MultiCalibrationHud? = null
+    // 打卡引擎自带轮询：Engine 的轮询只在对战运行态跑；打卡不主动催就收不到帧
+    // （学习页静止时无障碍事件不来，DakaEngine 会一直等着）
+    private var dakaOffTargetStreak = 0
+    private val dakaPollRunnable = object : Runnable {
+        override fun run() {
+            if (!dakaEngine.running) return
+            readAndDispatch()
+            handler.postDelayed(this, DAKA_POLL_MS)
+        }
+    }
     private var readCount = 0L
     private var readSumMs = 0L
     private var readMaxMs = 0L
@@ -43,6 +60,52 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         }
     }
 
+    /** 打卡词表持久化：逗号分隔，空串＝空表。 */
+    private val prefsStore = object : DakaStore {
+        override fun loadQueue(): List<String> =
+            AppPrefs.get(this@QuizAccessibilityService)
+                .getString(AppPrefs.KEY_DAKA_QUEUE, "")
+                .orEmpty()
+                .split(',')
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+
+        override fun saveQueue(queue: List<String>) {
+            AppPrefs.get(this@QuizAccessibilityService).edit()
+                .putString(AppPrefs.KEY_DAKA_QUEUE, queue.joinToString(","))
+                .apply()
+        }
+
+        override fun clearQueue() {
+            AppPrefs.get(this@QuizAccessibilityService).edit()
+                .putString(AppPrefs.KEY_DAKA_QUEUE, "")
+                .apply()
+        }
+    }
+
+    val dakaEngine: DakaEngine by lazy {
+        DakaEngine(
+            this,
+            { word -> EcdictDb.get(this).lookup(word) },
+            prefsStore,
+            onStopped = { reason ->
+                AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_DAKA_RUNNING, false).apply()
+                handler.removeCallbacks(dakaPollRunnable)
+                dakaOffTargetStreak = 0
+                dakaOverlay?.syncRunning(false)
+                LogBus.log("daka=stop reason=$reason")
+            }
+        ).also { e ->
+            e.onProgress = { dakaOverlay?.syncCount(dakaEngine.answered) }
+            // 打卡的「继续」与选项块兜底坐标走校准值（与对战引擎同款注入）
+            e.tapPoint = { point -> point.resolve(AppPrefs.get(this)) }
+            e.screenSize = {
+                val b = screenBounds()
+                b.width() to b.height()
+            }
+        }
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         val previous = instance
@@ -51,16 +114,16 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         }
         instance = this
         val prefs = AppPrefs.get(this)
+        // 打卡有真实学习副作用：服务重连不自动恢复，只把残留的运行标记清掉
+        if (prefs.getBoolean(AppPrefs.KEY_DAKA_RUNNING, false)) {
+            prefs.edit().putBoolean(AppPrefs.KEY_DAKA_RUNNING, false).apply()
+        }
         if (prefs.getBoolean(AppPrefs.KEY_ENGINE_RUNNING, false)) {
-            val mode = if (prefs.getBoolean(AppPrefs.KEY_AUTO_MODE, false)) {
-                Engine.Mode.AUTO
-            } else {
-                Engine.Mode.OBSERVE
-            }
             applySettings()
-            engine.start(mode)
+            engine.start(Engine.Mode.AUTO)
         }
         syncOverlay()
+        syncDakaOverlay()
         warmUp()
         handler.postDelayed(readRunnable, DEBOUNCE_MS)
     }
@@ -77,19 +140,28 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            lastWindowClass = event.className?.toString()
+        }
         overlay?.syncRunning(engine.running)
         scheduleRead(DEBOUNCE_MS)
     }
 
     override fun onInterrupt() {
         handler.removeCallbacks(readRunnable)
+        handler.removeCallbacks(dakaPollRunnable)
     }
 
     override fun onDestroy() {
         if (engine.running) engine.stop(STOP_SERVICE_DESTROY)
+        dakaEngine.stop(STOP_SERVICE_DESTROY)
+        handler.removeCallbacks(dakaPollRunnable)
         stopCalibration(save = false)
+        stopMultiCalibration(save = false)
         overlay?.hide()
         overlay = null
+        dakaOverlay?.hide()
+        dakaOverlay = null
         readDueSince = 0L
         handler.removeCallbacks(readRunnable)
         if (instance === this) instance = null
@@ -124,6 +196,34 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         overlay?.syncRemaining(remaining)
     }
 
+    /** 按偏好与权限显示/隐藏打卡浮窗；主界面点击入口后调用。 */
+    fun syncDakaOverlay() {
+        val on = AppPrefs.get(this).getBoolean(AppPrefs.KEY_DAKA_OVERLAY, false)
+        if (!on || !Settings.canDrawOverlays(this)) {
+            dakaOverlay?.hide()
+            dakaOverlay = null
+            LogBus.log("daka_overlay=hidden on=$on")
+            return
+        }
+        if (dakaOverlay == null) {
+            val ball = DakaOverlay(this)
+            ball.onToggle = { toggleDakaEngine() }
+            ball.onClose = { closeDakaOverlay() }
+            dakaOverlay = ball
+            ball.show()
+        }
+        dakaOverlay?.syncRunning(dakaEngine.running)
+        dakaOverlay?.syncCount(dakaEngine.answered)
+    }
+
+    /** 长按收起打卡浮窗：关偏好，下次进主界面不会自动弹回。 */
+    private fun closeDakaOverlay() {
+        AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_DAKA_OVERLAY, false).apply()
+        dakaOverlay?.hide()
+        dakaOverlay = null
+        LogBus.log("daka_overlay=close")
+    }
+
     // ---------- 点击位置校准 ----------
 
     /** 当前校准会话（null＝没在摆位）：目标 + 准星中心的整屏比例。 */
@@ -133,6 +233,9 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         val (fx, fy) = marker.centerRatio()
         return Triple(target, fx, fy)
     }
+
+    /** 是否有校准会话在进行（单点或多点）：起引擎前统一拦一道。 */
+    fun isCalibrating(): Boolean = calibTarget != null || multiMarkers.isNotEmpty()
 
     /**
      * 起一次校准：准星出现在该点当前生效坐标处（已校准值或默认值）。
@@ -163,6 +266,46 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         hud.show()
         syncCalibHud()
         LogBus.log("calib=start target=${target.prefKey} fx=%.3f fy=%.3f".format(fx, fy))
+        return true
+    }
+
+    /**
+     * 起一次多点校准：每个目标摆一个准星，确认时统一保存。
+     * 与单点校准、两个引擎互斥；失败时返回 false 并记日志。
+     */
+    fun startMultiCalibration(targets: List<TapPoint>): Boolean {
+        if (engine.running || dakaEngine.running) {
+            LogBus.log("calib=busy_running")
+            return false
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            LogBus.log("calib=no_overlay")
+            return false
+        }
+        if (targets.isEmpty()) return false
+        // 清掉可能残留的单点/多点会话
+        stopCalibration(save = false)
+        stopMultiCalibration(save = false)
+
+        val prefs = AppPrefs.get(this)
+        for (target in targets) {
+            val (fx, fy) = target.resolve(prefs)
+            val marker = CalibrationMarker(this, target, fx, fy)
+            multiTargets.add(target)
+            multiMarkers.add(marker)
+            marker.show()
+        }
+        val hud = MultiCalibrationHud(this, targets.size, object : MultiCalibrationHud.Callbacks {
+            override fun onConfirm() = stopMultiCalibration(save = true)
+
+            override fun onCancel() = stopMultiCalibration(save = false)
+        })
+        multiHud = hud
+        hud.show()
+        LogBus.log(
+            "calib=multi_start n=${targets.size} " +
+                "targets=${targets.joinToString(",") { it.prefKey }}"
+        )
         return true
     }
 
@@ -217,6 +360,39 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         calibHud = null
         calibMarker = null
         calibTarget = null
+        // 单点与多点不共存：单点收尾时顺手清掉可能残留的多点会话
+        if (multiMarkers.isNotEmpty() || multiHud != null) stopMultiCalibration(save = false)
+    }
+
+    /** 结束多点校准；save=true 时逐个把准星中心写成该点的新比例。 */
+    private fun stopMultiCalibration(save: Boolean) {
+        if (multiMarkers.isEmpty() && multiHud == null) return
+        if (save) {
+            val prefs = AppPrefs.get(this)
+            val b = screenBounds()
+            for (i in multiTargets.indices) {
+                val target = multiTargets[i]
+                val marker = multiMarkers[i]
+                val (fx, fy) = marker.centerRatio()
+                target.save(prefs, fx, fy)
+                LogBus.log(
+                    "calib=multi_save target=${target.prefKey} fx=%.4f fy=%.4f px=%d py=%d"
+                        .format(fx, fy, (b.width() * fx).toInt(), (b.height() * fy).toInt())
+                )
+            }
+            Toast.makeText(
+                this,
+                getString(R.string.calib_multi_saved_fmt, multiTargets.size),
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            LogBus.log("calib=multi_cancel n=${multiMarkers.size}")
+        }
+        for (marker in multiMarkers) marker.hide()
+        multiMarkers.clear()
+        multiTargets.clear()
+        multiHud?.hide()
+        multiHud = null
     }
 
     /** 从偏好应用对战类型与循环局数上限。 */
@@ -226,7 +402,12 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
     }
 
     private fun toggleEngine() {
-        if (calibTarget != null) {
+        if (dakaEngine.running) {
+            // D5 互斥：打卡与对战同一时刻只允许一个运行
+            LogBus.log("battle=busy_daka")
+            return
+        }
+        if (isCalibrating()) {
             // 校准中不许起引擎：注入的手势会砸在准星旁，且摆位还没确认
             LogBus.log("calib=busy_toggle")
             return
@@ -234,19 +415,37 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
         if (engine.running) {
             engine.stop("user")
         } else {
-            val mode = if (AppPrefs.get(this).getBoolean(AppPrefs.KEY_AUTO_MODE, false)) {
-                Engine.Mode.AUTO
-            } else {
-                Engine.Mode.OBSERVE
-            }
             AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_ENGINE_RUNNING, true).apply()
-            engine.setMode(mode)
             applySettings()
-            engine.start(mode)
+            engine.start(Engine.Mode.AUTO)
         }
         overlay?.syncRunning(engine.running)
         syncOverlayRemaining()
         LogBus.log("overlay=toggle running=${engine.running}")
+    }
+
+    /** 打卡浮窗单击：启动/停止打卡；与对战、校准互斥。 */
+    private fun toggleDakaEngine() {
+        if (engine.running) {
+            LogBus.log("daka=busy_battle")
+            return
+        }
+        if (isCalibrating()) {
+            LogBus.log("calib=busy_toggle")
+            return
+        }
+        if (dakaEngine.running) {
+            dakaEngine.stop("user")
+        } else {
+            AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_DAKA_RUNNING, true).apply()
+            dakaEngine.start()
+            dakaOffTargetStreak = 0
+            handler.removeCallbacks(dakaPollRunnable)
+            handler.postDelayed(dakaPollRunnable, 0L)
+        }
+        dakaOverlay?.syncRunning(dakaEngine.running)
+        dakaOverlay?.syncCount(dakaEngine.answered)
+        LogBus.log("daka=toggle running=${dakaEngine.running}")
     }
 
     private fun openApp() {
@@ -255,6 +454,23 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
                 Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         } catch (_: Throwable) {
+        }
+    }
+
+    /**
+     * 打卡离页兜底：不在百词斩前台时 readAndDispatch 早退，DakaEngine 收不到帧，
+     * 只靠它自己数帧永远停不了 → 这里按轮询次数判离页，约 15s 后停手。
+     */
+    private fun trackDakaOffTarget() {
+        if (!dakaEngine.running) {
+            dakaOffTargetStreak = 0
+            return
+        }
+        dakaOffTargetStreak++
+        if (dakaOffTargetStreak == 1) LogBus.log("daka=off_target waiting")
+        if (dakaOffTargetStreak >= DAKA_OFF_TARGET_LIMIT) {
+            dakaOffTargetStreak = 0
+            dakaEngine.stop("left_app")
         }
     }
 
@@ -274,18 +490,23 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
     private fun readAndDispatch() {
         val root = rootInActiveWindow
         if (root == null || root.packageName?.toString() != TARGET_PACKAGE) {
+            // 不在百词斩页：DakaEngine 一帧都收不到，靠它自己数帧永远停不下来 → 这里补离页计数
+            trackDakaOffTarget()
             return
         }
+        dakaOffTargetStreak = 0
         val t0 = SystemClock.uptimeMillis()
         val snapshot = try {
-            pageReader.read(root)
+            pageReader.read(root, lastWindowClass)
         } catch (t: Throwable) {
             LogBus.log("state=${PageState.UNKNOWN.name} err=read_${t.javaClass.simpleName}")
             return
         }
         perfRead(SystemClock.uptimeMillis() - t0)
         try {
-            if (engine.running) {
+            if (dakaEngine.running) {
+                dakaEngine.onPage(snapshot)
+            } else if (engine.running) {
                 engine.onPage(snapshot)
             } else {
                 LogBus.log(snapshot.logLine())
@@ -435,6 +656,8 @@ class QuizAccessibilityService : AccessibilityService(), UiOps {
 
     companion object {
         private const val DEBOUNCE_MS = 60L
+        private const val DAKA_POLL_MS = 250L          // 打卡轮询周期（与对战 poll 同量级）
+        private const val DAKA_OFF_TARGET_LIMIT = 60   // ≈15s：不在百词斩前台就算离页，停手
         private const val READ_DEFER_CAP_MS = 200L
         private const val PERF_EVERY_READS = 20L
         private const val WARMUP_WORD = "warmup"

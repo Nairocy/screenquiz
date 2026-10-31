@@ -34,12 +34,13 @@
 
             <ImageView
                 android:id="@+id/logo_tile"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:background="@drawable/bg_logo_tile"
-                android:clipToOutline="true"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_launcher_fg" />
+                android:padding="2dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/logo_mark" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -52,16 +53,18 @@
                     android:layout_height="wrap_content"
                     android:text="@string/app_name"
                     android:textColor="@color/text_primary"
-                    android:textSize="18sp"
+                    android:textFontWeight="800"
+                    android:textSize="19sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="monospace"
                     android:text="@string/header_subtitle"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <View
@@ -75,29 +78,41 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_chip_accent"
-                android:paddingStart="10dp"
+                android:fontFamily="monospace"
+                android:paddingStart="8dp"
                 android:paddingTop="4dp"
-                android:paddingEnd="10dp"
+                android:paddingEnd="8dp"
                 android:paddingBottom="4dp"
-                android:textColor="@color/accent"
-                android:textSize="11sp" />
+                android:textColor="@color/text_primary"
+                android:textSize="10sp" />
         </LinearLayout>
 
-        <!-- ② 主控卡 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/outline" />
+
+        <!-- ② 主控卡：海军蓝 hero -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/status_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:contentPadding="16dp"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
+            android:layout_marginTop="16dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:cardBackgroundColor="@color/navy"
             app:cardElevation="0dp"
+            app:contentPadding="20dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
             app:strokeColor="@color/outline"
-            app:strokeWidth="1dp">
+            app:strokeWidth="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -106,20 +121,14 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <View
-                        android:id="@+id/run_dot"
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
-                        android:background="@drawable/bg_dot"
-                        android:backgroundTint="@color/text_secondary" />
-
                     <TextView
-                        android:id="@+id/run_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textColor="@color/text_primary"
-                        android:textSize="15sp" />
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.12"
+                        android:text="01 / 状态"
+                        android:textColor="@color/paper"
+                        android:textSize="10sp" />
 
                     <View
                         android:layout_width="0dp"
@@ -127,128 +136,275 @@
                         android:layout_weight="1" />
 
                     <TextView
-                        android:id="@+id/current_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chip_neutral"
-                        android:paddingStart="10dp"
-                        android:paddingTop="4dp"
-                        android:paddingEnd="10dp"
-                        android:paddingBottom="4dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:fontFamily="monospace"
+                        android:text="满铺"
+                        android:textColor="@color/paper"
+                        android:textSize="9sp" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="9dp"
+                    android:background="#4DF4F1EA" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/run_dot"
+                        android:layout_width="9dp"
+                        android:layout_height="9dp"
+                        android:background="@drawable/bg_dot"
+                        android:backgroundTint="@color/mustard" />
+
+                    <TextView
+                        android:id="@+id/run_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.12"
+                        android:textColor="@color/paper"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/current_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_chip_neutral"
+                    android:paddingStart="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/paper"
+                    android:textFontWeight="800"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginStart="-20dp"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginEnd="-20dp"
+                    android:background="@color/outline" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_button"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="-20dp"
+                    android:layout_marginEnd="-20dp"
+                    android:layout_marginBottom="-20dp"
+                    android:insetLeft="0dp"
                     android:insetTop="0dp"
+                    android:insetRight="0dp"
                     android:insetBottom="0dp"
                     android:text="@string/start"
-                    android:textColor="@color/on_accent"
-                    android:textSize="16sp"
-                    app:backgroundTint="@color/accent"
-                    app:cornerRadius="16dp"
+                    android:textColor="@color/paper"
+                    android:textFontWeight="800"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/brick"
                     app:icon="@drawable/ic_play"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    app:iconTint="@color/on_accent" />
+                    app:iconGravity="end"
+                    app:iconPadding="12dp"
+                    app:iconTint="@color/paper"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- ③ 服务卡 -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/service_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:contentPadding="16dp"
+            android:layout_marginTop="16dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
             app:cardElevation="0dp"
+            app:contentPadding="20dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
             app:strokeColor="@color/outline"
-            app:strokeWidth="1dp">
+            app:strokeWidth="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <View
-                    android:id="@+id/service_dot"
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@drawable/bg_dot"
-                    android:backgroundTint="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/service_status"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.12"
+                        android:text="02 / 服务"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="1×1"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="9sp" />
+                </LinearLayout>
 
                 <View
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_weight="1" />
+                    android:layout_marginTop="9dp"
+                    android:background="@color/line_hair" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/enable_service"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:text="@string/enable_service"
-                    android:textSize="13sp"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/outline" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/service_dot"
+                        android:layout_width="9dp"
+                        android:layout_height="9dp"
+                        android:background="@drawable/bg_dot"
+                        android:backgroundTint="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/service_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/enable_service"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="12dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/enable_service"
+                        android:textColor="@color/brick"
+                        android:textSize="13sp"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
+                        app:strokeColor="@color/outline"
+                        app:strokeWidth="2dp" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ④ 数据行 -->
+        <!-- ④ 数据行：03 词典 / 04 学习 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dict_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:contentPadding="16dp"
-                app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="@color/mustard"
                 app:cardElevation="0dp"
+                app:contentPadding="20dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
                 app:strokeColor="@color/outline"
-                app:strokeWidth="1dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:letterSpacing="0.12"
+                            android:text="03 / 词典"
+                            android:textColor="@color/outline"
+                            android:textSize="10sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:text="1×1"
+                            android:textColor="@color/outline"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="9dp"
+                        android:background="@color/line_hair" />
+
                     <TextView
                         android:id="@+id/dict_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
-                        android:textSize="22sp"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/outline"
+                        android:textFontWeight="700"
+                        android:textSize="34sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.1"
                         android:text="@string/stat_dict_label"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/outline"
+                        android:textSize="10sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -256,44 +412,84 @@
                 android:id="@+id/learned_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                app:contentPadding="16dp"
-                app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="@color/olive"
                 app:cardElevation="0dp"
+                app:contentPadding="20dp"
                 app:rippleColor="@color/chip_accent_bg"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
                 app:strokeColor="@color/outline"
-                app:strokeWidth="1dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/learned_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:letterSpacing="0.12"
+                            android:text="04 / 学习"
+                            android:textColor="@color/paper"
+                            android:textSize="10sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:text="1×1"
+                            android:textColor="@color/paper"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="9dp"
+                        android:background="#4DF4F1EA" />
+
+                    <TextView
+                        android:id="@+id/learned_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/paper"
+                        android:textFontWeight="700"
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:letterSpacing="0.1"
                             android:text="@string/stat_learned_label"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                            android:textColor="@color/paper"
+                            android:textSize="10sp" />
 
                         <ImageView
                             android:layout_width="14dp"
@@ -301,7 +497,7 @@
                             android:layout_marginStart="2dp"
                             android:contentDescription="@null"
                             android:src="@drawable/ic_chevron_right"
-                            app:tint="@color/text_secondary" />
+                            app:tint="@color/paper" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -309,156 +505,228 @@
 
         <!-- ⑤ 设置卡 -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/settings_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:contentPadding="16dp"
+            android:layout_marginTop="16dp"
             app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
             app:cardElevation="0dp"
+            app:contentPadding="20dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
             app:strokeColor="@color/outline"
-            app:strokeWidth="1dp">
+            app:strokeWidth="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:letterSpacing="0.03"
-                    android:text="@string/settings_label"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/mode_switch"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/mode_auto"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/mode_hint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.12"
+                        android:text="05 / 设置"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/overlay_switch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/overlay_label"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/overlay_hint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="@string/battle_type_label"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/battle_type_group"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:selectionRequired="true"
-                    app:singleSelection="true">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/type_rank"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                    <View
                         android:layout_width="0dp"
-                        android:layout_height="44dp"
-                        android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:text="@string/type_rank"
-                        android:textSize="14sp"
-                        app:cornerRadius="12dp" />
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/type_practice"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="44dp"
-                        android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:text="@string/type_practice"
-                        android:textSize="14sp"
-                        app:cornerRadius="12dp" />
-                </com.google.android.material.button.MaterialButtonToggleGroup>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="1×4"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="9sp" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="@string/rounds_label"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="9dp"
+                    android:background="@color/line_hair" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="52dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/overlay_label"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.nairocy.screenquiz.SquareSwitch
+                            android:id="@+id/overlay_switch"
+                            android:layout_width="46dp"
+                            android:layout_height="26dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/overlay_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minLines="2"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/line_hair" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="52dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/battle_type_label"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/battle_type_group"
+                        android:layout_width="170dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/type_rank"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_weight="1"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:text="@string/type_rank"
+                            android:textColor="@color/seg_button_text"
+                            android:textFontWeight="700"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/seg_button_bg"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
+                            app:strokeColor="@color/outline"
+                            app:strokeWidth="2dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/type_practice"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_weight="1"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:text="@string/type_practice"
+                            android:textColor="@color/seg_button_text"
+                            android:textFontWeight="700"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/seg_button_bg"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
+                            app:strokeColor="@color/outline"
+                            app:strokeWidth="2dp" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/line_hair" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/rounds_label"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
                     <ImageView
                         android:id="@+id/rounds_minus"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_stepper"
                         android:contentDescription="@string/rounds_minus_desc"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_minus"
                         app:tint="@color/text_primary" />
 
                     <EditText
                         android:id="@+id/rounds_input"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_width="64dp"
+                        android:layout_height="38dp"
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
                         android:background="@drawable/bg_field"
+                        android:fontFamily="monospace"
                         android:gravity="center"
                         android:inputType="number"
                         android:maxLength="3"
                         android:maxLines="1"
                         android:paddingStart="0dp"
-                        android:paddingTop="12dp"
+                        android:paddingTop="0dp"
                         android:paddingEnd="0dp"
-                        android:paddingBottom="12dp"
+                        android:paddingBottom="0dp"
                         android:textColor="@color/text_primary"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
 
                     <ImageView
                         android:id="@+id/rounds_plus"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_stepper"
                         android:contentDescription="@string/rounds_plus_desc"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_plus"
                         app:tint="@color/text_primary" />
@@ -476,85 +744,157 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="14dp"
-                    android:background="@color/outline" />
+                    android:layout_marginTop="12dp"
+                    android:background="@color/line_hair" />
 
                 <LinearLayout
                     android:id="@+id/calib_row"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="52dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="4dp">
+                    android:orientation="horizontal">
 
-                    <LinearLayout
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/calib_label"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/calib_summary"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/calib_label"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/calib_summary"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/calib_summary_default"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:ellipsize="end"
+                        android:fontFamily="monospace"
+                        android:gravity="end"
+                        android:maxLines="1"
+                        android:text="@string/calib_summary_default"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
 
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
+                        android:layout_marginStart="8dp"
                         android:contentDescription="@string/calib_label"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_secondary" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/line_hair" />
+
+                <LinearLayout
+                    android:id="@+id/daka_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/daka_label"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/daka_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:fontFamily="monospace"
+                        android:gravity="end"
+                        android:maxLines="2"
+                        android:text="@string/daka_summary_idle"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+
+                    <com.nairocy.screenquiz.SquareSwitch
+                        android:id="@+id/daka_switch"
+                        android:layout_width="46dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="10dp" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ⑥ 日志卡 -->
+        <!-- ⑥ 日志卡：墨底 -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/log_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:contentPadding="16dp"
-            app:cardBackgroundColor="@color/surface_card"
-            app:cardCornerRadius="18dp"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/log_bg"
             app:cardElevation="0dp"
+            app:contentPadding="20dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
             app:strokeColor="@color/outline"
-            app:strokeWidth="1dp">
+            app:strokeWidth="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:letterSpacing="0.03"
-                    android:text="@string/log_label"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.12"
+                        android:text="06 / 实时日志"
+                        android:textColor="@color/paper"
+                        android:textSize="10sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:text="1×1"
+                        android:textColor="@color/paper"
+                        android:textSize="9sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="9dp"
+                    android:background="#4DF4F1EA" />
 
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/log_scroll"
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_well"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/log_bg"
                     android:padding="12dp"
                     android:scrollbars="vertical">
 
@@ -563,12 +903,79 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="monospace"
-                        android:lineSpacingExtra="3dp"
+                        android:lineSpacingExtra="4dp"
                         android:textColor="@color/log_text"
                         android:textIsSelectable="true"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
                 </androidx.core.widget.NestedScrollView>
 
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ⑦ 印记块 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/stamp_card"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:cardElevation="0dp"
+            app:contentPaddingBottom="12dp"
+            app:contentPaddingEnd="20dp"
+            app:contentPaddingStart="20dp"
+            app:contentPaddingTop="12dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.12"
+                        android:text="07 / 印记"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="端侧 · 离线"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_grid_mark">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="斩"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="800"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
@@ -594,7 +1001,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:background="@drawable/bg_drawer"
-            android:elevation="12dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -604,14 +1010,16 @@
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
                 android:paddingTop="14dp"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/learned_drawer_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="17sp"
+                    android:textFontWeight="800"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -620,12 +1028,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/bg_chip_neutral"
-                    android:paddingStart="8dp"
+                    android:fontFamily="monospace"
+                    android:paddingStart="6dp"
                     android:paddingTop="2dp"
-                    android:paddingEnd="8dp"
+                    android:paddingEnd="6dp"
                     android:paddingBottom="2dp"
                     android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
 
                 <View
                     android:layout_width="0dp"
@@ -633,50 +1042,26 @@
                     android:layout_weight="1" />
 
                 <ImageView
-                    android:id="@+id/drawer_export"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/words_export_desc"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_export"
-                    app:tint="@color/text_primary" />
-
-                <ImageView
-                    android:id="@+id/drawer_import"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/words_import_desc"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_import"
-                    app:tint="@color/text_primary" />
-
-                <ImageView
                     android:id="@+id/drawer_close"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:background="@drawable/bg_stepper"
                     android:contentDescription="@string/close"
-                    android:padding="8dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_close"
                     app:tint="@color/text_primary" />
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/learned_hint"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/outline" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/bg_field"
                 android:gravity="center_vertical"
@@ -685,8 +1070,8 @@
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:contentDescription="@null"
                     android:src="@drawable/ic_search"
                     app:tint="@color/text_secondary" />
@@ -694,7 +1079,7 @@
                 <EditText
                     android:id="@+id/drawer_search"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@null"
                     android:hint="@string/learned_search_hint"
@@ -702,20 +1087,20 @@
                     android:inputType="text"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:paddingTop="10dp"
+                    android:paddingTop="0dp"
                     android:paddingEnd="8dp"
-                    android:paddingBottom="10dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_secondary"
-                    android:textSize="14sp" />
+                    android:textSize="12sp" />
 
                 <ImageView
                     android:id="@+id/drawer_clear"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/close"
-                    android:padding="7dp"
+                    android:scaleType="centerInside"
                     android:src="@drawable/ic_close"
                     android:visibility="gone"
                     app:tint="@color/text_secondary" />
@@ -745,6 +1130,104 @@
                     android:textSize="13sp"
                     android:visibility="gone" />
             </FrameLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginStart="2dp"
+                android:background="@color/outline" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginStart="2dp"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/brick">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
+                        android:importantForAccessibility="noHideDescendants"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_export"
+                            app:tint="@color/paper" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="导出"
+                            android:textColor="@color/paper"
+                            android:textFontWeight="700"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/drawer_export"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackground"
+                        android:contentDescription="@string/words_export_desc" />
+                </FrameLayout>
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/outline" />
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/surface_card">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
+                        android:importantForAccessibility="noHideDescendants"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_import"
+                            app:tint="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="导入"
+                            android:textColor="@color/text_primary"
+                            android:textFontWeight="700"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/drawer_import"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackground"
+                        android:contentDescription="@string/words_import_desc" />
+                </FrameLayout>
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 
@@ -767,7 +1250,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:background="@drawable/bg_drawer"
-            android:elevation="12dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -777,7 +1259,8 @@
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
                 android:paddingTop="14dp"
-                android:paddingEnd="8dp">
+                android:paddingEnd="8dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -785,24 +1268,31 @@
                     android:layout_weight="1"
                     android:text="@string/calib_label"
                     android:textColor="@color/text_primary"
-                    android:textSize="17sp"
+                    android:textFontWeight="800"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/calib_close"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:background="@drawable/bg_stepper"
                     android:contentDescription="@string/close"
-                    android:padding="8dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_close"
                     app:tint="@color/text_primary" />
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/outline" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="10dp"
+                android:lineSpacingMultiplier="1.4"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:text="@string/calib_hint"
@@ -812,7 +1302,7 @@
             <LinearLayout
                 android:id="@+id/calib_item_pk"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_marginTop="12dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
@@ -820,9 +1310,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp">
+                android:paddingEnd="12dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -835,29 +1323,38 @@
                         android:layout_height="wrap_content"
                         android:text="@string/calib_target_pk"
                         android:textColor="@color/text_primary"
-                        android:textSize="15sp" />
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/calib_item_pk_desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:text="@string/calib_target_pk_desc"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/calib_item_pk_value"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/accent"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/calib_item_pk_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
                     android:contentDescription="@string/calib_target_pk"
                     android:src="@drawable/ic_chevron_right"
                     app:tint="@color/text_secondary" />
@@ -866,23 +1363,19 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:background="@color/outline" />
+                android:background="@color/line_hair" />
 
             <LinearLayout
                 android:id="@+id/calib_item_exit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp">
+                android:paddingEnd="12dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -895,29 +1388,38 @@
                         android:layout_height="wrap_content"
                         android:text="@string/calib_target_exit"
                         android:textColor="@color/text_primary"
-                        android:textSize="15sp" />
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/calib_item_exit_desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:text="@string/calib_target_exit_desc"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/calib_item_exit_value"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/accent"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/calib_item_exit_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
                     android:contentDescription="@string/calib_target_exit"
                     android:src="@drawable/ic_chevron_right"
                     app:tint="@color/text_secondary" />
@@ -926,23 +1428,19 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:background="@color/outline" />
+                android:background="@color/line_hair" />
 
             <LinearLayout
                 android:id="@+id/calib_item_match_back"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp">
+                android:paddingEnd="12dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -955,54 +1453,228 @@
                         android:layout_height="wrap_content"
                         android:text="@string/calib_target_match_back"
                         android:textColor="@color/text_primary"
-                        android:textSize="15sp" />
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/calib_item_match_back_desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:text="@string/calib_target_match_back_desc"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/calib_item_match_back_value"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/accent"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/calib_item_match_back_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
                     android:contentDescription="@string/calib_target_match_back"
                     android:src="@drawable/ic_chevron_right"
                     app:tint="@color/text_secondary" />
             </LinearLayout>
 
             <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/line_hair" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <View
+                    android:layout_width="14dp"
+                    android:layout_height="1dp"
+                    android:background="@color/brick" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.12"
+                    android:text="@string/calib_group_daka"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/calib_item_daka_opts"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/calib_target_daka_opts"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/calib_item_daka_opts_desc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="@string/calib_target_daka_opts_desc"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/calib_daka_opts_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@string/calib_target_daka_opts"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/outline" />
+                android:background="@color/line_hair" />
+
+            <LinearLayout
+                android:id="@+id/calib_item_daka_continue"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/calib_target_daka_continue"
+                        android:textColor="@color/text_primary"
+                        android:textFontWeight="700"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/calib_item_daka_continue_desc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="@string/calib_target_daka_continue_desc"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/calib_daka_continue_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="@string/calib_target_daka_continue"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/line_hair" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/calib_reset"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
+                android:layout_marginStart="2dp"
+                android:insetLeft="0dp"
                 android:insetTop="0dp"
+                android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:text="@string/calib_reset_all"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/brick"
+                android:textFontWeight="700"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/surface_card"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.ScreenQuiz.Zero"
+                app:strokeColor="@color/outline"
+                app:strokeWidth="2dp" />
         </LinearLayout>
     </FrameLayout>
 </FrameLayout>

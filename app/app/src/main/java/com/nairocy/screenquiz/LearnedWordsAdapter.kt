@@ -61,12 +61,14 @@ class LearnedWordsAdapter(
             val colorRes: Int
             when (row.source) {
                 "manual" -> {
-                    bgRes = R.drawable.bg_chip_success
-                    colorRes = R.color.success
+                    // 方正主义：手动=砖红底纸白字（唯一主动作色，只给小徽标）
+                    bgRes = R.drawable.bg_chip_brick
+                    colorRes = R.color.on_accent
                 }
                 "settle" -> {
-                    bgRes = R.drawable.bg_chip_accent
-                    colorRes = R.color.accent
+                    // 结算=内嵌面 + 墨字，靠 1dp 墨边成形，不抢主动作色
+                    bgRes = R.drawable.bg_chip_neutral
+                    colorRes = R.color.text_primary
                 }
                 else -> {
                     bgRes = R.drawable.bg_chip_neutral

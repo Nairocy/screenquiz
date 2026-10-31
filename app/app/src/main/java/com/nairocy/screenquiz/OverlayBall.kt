@@ -3,11 +3,9 @@ package com.nairocy.screenquiz
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PixelFormat
-import android.graphics.RectF
 import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
@@ -16,8 +14,8 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import androidx.core.content.ContextCompat
 import kotlin.math.abs
-import kotlin.math.min
 
 /**
  * 悬浮球：中央显示剩余对局数，单击开关引擎、拖动改位置、长按打开主界面。
@@ -49,16 +47,24 @@ class OverlayBall(private val ctx: Context) : View(ctx) {
             WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     }
 
-    private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = dp(2f)
+        strokeCap = Paint.Cap.BUTT
+        strokeJoin = Paint.Join.MITER
+    }
     private val glyphPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = dp(2f)
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
+        strokeCap = Paint.Cap.BUTT
+        strokeJoin = Paint.Join.MITER
     }
     private val digitPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textAlign = Paint.Align.LEFT
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
         textSize = dp(DIGIT_DP)
     }
     private val path = Path()
@@ -125,43 +131,46 @@ class OverlayBall(private val ctx: Context) : View(ctx) {
         val h = height.toFloat()
         val cx = w / 2f
         val cy = h / 2f
-        val r = min(w, h) / 2f - dp(1.5f)
+        val inset = dp(1f)
+        val left = inset
+        val top = inset
+        val right = w - inset
+        val bottom = h - inset
 
-        bgPaint.style = Paint.Style.FILL
-        bgPaint.color = if (running) COLOR_ON else COLOR_OFF
-        bgPaint.alpha = ALPHA
-        canvas.drawCircle(cx, cy, r, bgPaint)
-
-        bgPaint.style = Paint.Style.STROKE
-        bgPaint.strokeWidth = dp(1.5f)
-        bgPaint.color = Color.WHITE
-        bgPaint.alpha = 0x55
-        canvas.drawCircle(cx, cy, r, bgPaint)
+        fillPaint.color = ContextCompat.getColor(
+            ctx,
+            if (running) R.color.brick else R.color.surface_card
+        )
+        canvas.drawRect(left, top, right, bottom, fillPaint)
+        strokePaint.color = ContextCompat.getColor(ctx, R.color.outline)
+        canvas.drawRect(left, top, right, bottom, strokePaint)
 
         val rem = remaining
         if (rem != null) {
-            // 中央：剩余对局数（运行中亮白，停止时略暗）
+            digitPaint.color = ContextCompat.getColor(
+                ctx,
+                if (running) R.color.on_accent else R.color.text_primary
+            )
             val text = rem.toString()
-            digitPaint.color = Color.WHITE
-            digitPaint.alpha = if (running) 0xFF else 0xCC
-            val tx = cx - digitPaint.measureText(text) / 2f
             val ty = cy - (digitPaint.descent() + digitPaint.ascent()) / 2f
-            canvas.drawText(text, tx, ty, digitPaint)
+            canvas.drawText(text, cx, ty, digitPaint)
         } else {
-            // 尚未同步到数字：手绘描边图形（运行中=停止方块；已停止=播放三角）
-            glyphPaint.color = Color.WHITE
-            path.reset()
+            glyphPaint.color = ContextCompat.getColor(
+                ctx,
+                if (running) R.color.on_accent else R.color.text_primary
+            )
             if (running) {
                 val s = dp(7f)
-                path.addRoundRect(RectF(cx - s, cy - s, cx + s, cy + s), dp(2.5f), dp(2.5f), Path.Direction.CW)
+                canvas.drawRect(cx - s, cy - s, cx + s, cy + s, glyphPaint)
             } else {
                 val s = dp(8f)
+                path.reset()
                 path.moveTo(cx - s * 0.7f, cy - s)
                 path.lineTo(cx + s * 0.9f, cy)
                 path.lineTo(cx - s * 0.7f, cy + s)
                 path.close()
+                canvas.drawPath(path, glyphPaint)
             }
-            canvas.drawPath(path, glyphPaint)
         }
     }
 
@@ -241,8 +250,5 @@ class OverlayBall(private val ctx: Context) : View(ctx) {
         private const val DEFAULT_FY = 0.52f
         private const val LONG_PRESS_MS = 450L
         private const val TAP_MAX_MS = 400L
-        private const val ALPHA = 0xD8
-        private const val COLOR_ON = 0xFF2E9E5B.toInt()
-        private const val COLOR_OFF = 0xFF5A6472.toInt()
     }
 }

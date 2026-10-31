@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.ScreenQuiz" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/bg_window</item>
         <item name="android:colorBackground">@color/bg_window</item>
         <item name="colorSurface">@color/surface_card</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_inset</item>
+        <item name="colorSurfaceBright">@color/surface_card</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">@color/on_accent</item>
         <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline</item>
         <item name="colorSurfaceContainer">@color/surface_inset</item>
         <item name="colorSurfaceVariant">@color/surface_inset</item>
         <item name="colorSecondaryContainer">@color/chip_accent_bg</item>
         <item name="colorOnSecondaryContainer">@color/accent</item>
+        <item name="android:statusBarColor">@color/bg_window</item>
+        <item name="android:navigationBarColor">@color/bg_window</item>
+        <!-- 全局统一正文字体（中文走系统思源黑）；数字/编号/元数据在各自控件上显式设 monospace -->
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.ScreenQuiz.Zero" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">0dp</item>
     </style>
 </resources>

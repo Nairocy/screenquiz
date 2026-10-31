@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">读屏答题</string>
-    <string name="svc_desc">读取百词斩对局题目与选项，用于端侧自动答题（全端侧、不联网）。</string>
+    <string name="app_name">词斩斩</string>
+    <string name="svc_desc">读取百词斩的对局与学习页内容，用于端侧自动答题与每日打卡（全端侧、不联网）。</string>
 
-    <string name="header_subtitle">百词斩单词对战 · 全端侧自动答题</string>
+    <string name="header_subtitle">WordSlasher · 百词斩全端侧自动答题</string>
     <string name="settings_label">设置</string>
     <string name="stat_dict_label">词典条目</string>
     <string name="stat_learned_label">已学习词条</string>
@@ -16,7 +16,7 @@
     <string name="log_label">实时日志</string>
     <string name="log_empty">暂无日志</string>
 
-    <string name="state_idle">待机</string>
+    <string name="state_idle">等待开始</string>
     <string name="state_hub">主页</string>
     <string name="state_practice">练习赛页</string>
     <string name="state_matching">匹配中</string>
@@ -27,8 +27,6 @@
     <string name="state_unknown">未知</string>
 
     <string name="mode_auto">自动点击模式（AUTO）</string>
-    <string name="mode_hint_observe">当前 OBSERVE：只判定记日志，不点击</string>
-    <string name="mode_hint_auto">当前 AUTO：判定后自动点选、自动循环</string>
     <string name="start">开始对战</string>
     <string name="stop">停止运行</string>
     <string name="service_required">请先开启无障碍服务</string>
@@ -77,7 +75,7 @@
     <!-- 点击位置校准 -->
     <string name="calib_label">点击位置校准</string>
     <string name="calib_summary_default">未校准 · 全部默认</string>
-    <string name="calib_summary_fmt">已校准 %1$d / 3</string>
+    <string name="calib_summary_fmt">已校准 %1$d / %2$d</string>
     <string name="calib_hint">不同屏占比下画布按钮的位置会漂移。先把准星拖到目标按钮上，再切回本应用确定。</string>
     <string name="calib_value_fmt">%1$.1f%% / %2$.1f%%</string>
     <string name="calib_value_default_fmt">默认 %1$.1f%% / %2$.1f%%</string>
@@ -109,4 +107,25 @@
     <string name="calib_test_done">已点</string>
     <string name="calib_started_fmt">校准 %1$s：拖准星对准按钮，点悬浮条上的确定保存</string>
     <string name="calib_busy_start">先确定或取消当前校准，再开始对战</string>
+    <string name="calib_target_daka_tl">打卡选项 · 左上</string>
+    <string name="calib_target_daka_tr">打卡选项 · 右上</string>
+    <string name="calib_target_daka_bl">打卡选项 · 左下</string>
+    <string name="calib_target_daka_br">打卡选项 · 右下</string>
+    <string name="calib_target_daka_continue">打卡 · 继续按钮</string>
+    <string name="calib_multi_title">摆好 %1$d 个准星</string>
+    <string name="calib_multi_hint">把四个准星分别拖到左上 / 右上 / 左下 / 右下四个选项块上，然后点确定</string>
+    <string name="calib_multi_saved_fmt">已保存 %1$d 个打卡坐标</string>
+    <string name="calib_daka_opts_value_fmt">%1$d / 4 已校准</string>
+    <string name="calib_group_daka">打卡按钮</string>
+    <string name="calib_target_daka_opts">四个选项块</string>
+    <string name="calib_target_daka_opts_desc">一次摆 4 个准星：左上 / 右上 / 左下 / 右下</string>
+    <string name="calib_target_daka_continue_desc">词详解页右下角的「继续」按钮</string>
+
+    <!-- 每日单词打卡 -->
+    <string name="daka_label">每日单词打卡</string>
+    <string name="daka_summary_idle">未启动 · 打开百词斩学习页后点浮窗开始</string>
+    <string name="daka_summary_running">进行中 · 已答 %1$d 题</string>
+    <string name="daka_summary_done">已完成 · 请手动点「完成今日计划」打卡</string>
+    <string name="daka_shown">打卡浮窗已显示，打开百词斩学习页后点它开始</string>
+    <string name="battle_busy_daka">打卡进行中，请先停止打卡</string>
 </resources>

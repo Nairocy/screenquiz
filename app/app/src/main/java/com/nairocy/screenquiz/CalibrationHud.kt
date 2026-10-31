@@ -3,6 +3,8 @@ package com.nairocy.screenquiz
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -64,8 +66,8 @@ class CalibrationHud(
 
         valueText = TextView(ctx).apply {
             textSize = 14f
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
-            setTextColor(ContextCompat.getColor(ctx, R.color.accent))
+            setTypeface(Typeface.MONOSPACE, Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(ctx, R.color.brick))
         }
 
         val row1 = LinearLayout(ctx).apply {
@@ -99,6 +101,7 @@ class CalibrationHud(
                 contentDescription = ctx.getString(R.string.cancel)
                 val s = dp(34)
                 layoutParams = LayoutParams(s, s)
+                background = ContextCompat.getDrawable(ctx, R.drawable.bg_stepper)
                 setPadding(dp(9), dp(9), dp(9), dp(9))
                 setOnClickListener { callbacks.onCancel() }
             }.also { actionViews.add(it) }
@@ -214,16 +217,25 @@ class CalibrationHud(
             text = ctx.getString(res)
             textSize = 13f
             gravity = Gravity.CENTER
-            setTypeface(typeface, if (accent) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+            setTypeface(typeface, if (accent) Typeface.BOLD else Typeface.NORMAL)
             setTextColor(
-                ContextCompat.getColor(ctx, if (accent) R.color.accent else R.color.text_secondary)
+                ContextCompat.getColor(ctx, if (accent) R.color.on_accent else R.color.text_secondary)
             )
             setPadding(dp(9), dp(8), dp(9), dp(8))
-            background = ContextCompat.getDrawable(ctx, R.drawable.bg_field)
+            background = if (accent) {
+                solidBox(R.color.brick)
+            } else {
+                ContextCompat.getDrawable(ctx, R.drawable.bg_stepper)
+            }
             minimumHeight = dp(38)
-            gravity = Gravity.CENTER
             setOnClickListener { onClick() }
         }.also { actionViews.add(it) }
+
+    private fun solidBox(colorRes: Int): GradientDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(ContextCompat.getColor(ctx, colorRes))
+        setStroke(dp(2), ContextCompat.getColor(ctx, R.color.outline))
+    }
 
     /** 按住本条空白处拖动（按钮区域仍走正常点击）；位置存比例，下次校准沿用。 */
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {

@@ -3,22 +3,24 @@ package com.nairocy.screenquiz
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import androidx.core.content.ContextCompat
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
  * 校准准星：悬浮在百词斩之上的可拖动定位点（挂在无障碍服务上，不需要前台服务）。
  *
- * 视觉：双层描边圆环 + 四向十字，**中心留空**（能看见下面的按钮）；
+ * 视觉：52dp 方正外框 + 中心十字/方点，**中心留空**（能看见下面的按钮）；
  * 拖动只平移窗口，中心比例由 [centerRatio] 实时换算，主界面点「确定」时才写入 prefs。
  */
 @SuppressLint("ViewConstructor")
@@ -37,8 +39,37 @@ class CalibrationMarker(
     private val wm = ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val density = resources.displayMetrics.density
     private val widthPx = dp(WIDTH_DP).toInt()
-    private val heightPx = dp(HEIGHT_DP).toInt()
-    private val ringPx = dp(RING_DP).toInt()
+    private val squarePx = dp(SQUARE_DP)
+
+    private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = dp(SQUARE_STROKE_DP)
+        strokeCap = Paint.Cap.BUTT
+        strokeJoin = Paint.Join.MITER
+    }
+    private val crossPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val labelBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val labelNamePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        textSize = dp(LABEL_TEXT_DP)
+        typeface = Typeface.MONOSPACE
+    }
+    private val labelValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        textSize = dp(LABEL_TEXT_DP)
+        typeface = Typeface.MONOSPACE
+    }
+
+    private val labelTopPx = dp(1f)
+    private val labelPadPx = dp(3f)
+    private val labelHeightPx = labelNamePaint.fontSpacing * 2f + labelPadPx * 2f
+    private val squareTopPx = labelTopPx + labelHeightPx + dp(LABEL_GAP_DP)
+    private val centerOffsetPx = squareTopPx + squarePx / 2f
+    private val heightPx = (squareTopPx + squarePx + dp(2f)).toInt()
 
     private val params = WindowManager.LayoutParams(
         widthPx, heightPx,
@@ -55,18 +86,6 @@ class CalibrationMarker(
             WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     }
 
-    private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeCap = Paint.Cap.ROUND
-    }
-    private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textAlign = Paint.Align.CENTER
-        textSize = dp(9.5f)
-        color = Color.WHITE
-        setShadowLayer(dp(2f), 0f, dp(1f), 0xCC000000.toInt())
-    }
-
     private var downRawX = 0f
     private var downRawY = 0f
     private var startX = 0
@@ -79,7 +98,7 @@ class CalibrationMarker(
         val targetX = b.left + b.width() * startFx
         val targetY = b.top + b.height() * startFy
         params.x = (targetX - widthPx / 2.0).roundToInt()
-        params.y = (targetY - ringPx / 2.0).roundToInt()
+        params.y = (targetY - centerOffsetPx).roundToInt()
         try {
             wm.addView(this, params)
             // 部分 ROM 无视 fitInsetsTypes 仍平移窗口 → 以「实际屏幕位置」二段校正到目标点
@@ -118,7 +137,7 @@ class CalibrationMarker(
             loc[0] = params.x
             loc[1] = params.y
         }
-        return (loc[0] + widthPx / 2.0) to (loc[1] + ringPx / 2.0)
+        return (loc[0] + widthPx / 2.0) to (loc[1] + centerOffsetPx.toDouble())
     }
 
     /** 把窗口挪到「中心落在 (cx,cy)」的位置（用实际屏幕位置算差量，兼容 insets 平移）。 */
@@ -152,45 +171,59 @@ class CalibrationMarker(
 
     override fun onDraw(canvas: Canvas) {
         val cx = width / 2f
-        val cy = ringPx / 2f
-        val r = ringPx / 2f - dp(RING_STROKE_DP) - dp(2f)
+        val cy = squareTopPx + squarePx / 2f
+        val half = squarePx / 2f
+        val inset = dp(1f)
 
-        // 外环：黑底 + 白线（浅色/深色页面都看得见）
-        ringPaint.color = 0x99000000.toInt()
-        ringPaint.strokeWidth = dp(RING_STROKE_DP + 2.2f)
-        canvas.drawCircle(cx, cy, r, ringPaint)
-        ringPaint.color = 0xFFF2F5FA.toInt()
-        ringPaint.strokeWidth = dp(RING_STROKE_DP)
-        canvas.drawCircle(cx, cy, r, ringPaint)
+        // 外框：2dp 墨边，内部透明
+        framePaint.color = ContextCompat.getColor(ctx, R.color.outline)
+        canvas.drawRect(
+            cx - half + inset,
+            squareTopPx + inset,
+            cx + half - inset,
+            squareTopPx + squarePx - inset,
+            framePaint
+        )
 
-        // 四向十字：从中心留空处向外，中心一圈留空以看见目标
-        ringPaint.strokeWidth = dp(CROSS_STROKE_DP + 2.0f)
-        ringPaint.color = 0x99000000.toInt()
-        drawCross(canvas, cx, cy)
-        ringPaint.strokeWidth = dp(CROSS_STROKE_DP)
-        ringPaint.color = 0xFFF2F5FA.toInt()
-        drawCross(canvas, cx, cy)
+        // 中心十字 + 方点
+        val arm = dp(CROSS_LEN_DP) / 2f
+        val thickness = dp(CROSS_STROKE_DP) / 2f
+        crossPaint.color = ContextCompat.getColor(ctx, R.color.brick)
+        canvas.drawRect(cx - arm, cy - thickness, cx + arm, cy + thickness, crossPaint)
+        canvas.drawRect(cx - thickness, cy - arm, cx + thickness, cy + arm, crossPaint)
+        val dot = dp(CENTER_DOT_DP) / 2f
+        crossPaint.color = ContextCompat.getColor(ctx, R.color.paper)
+        canvas.drawRect(cx - dot, cy - dot, cx + dot, cy + dot, crossPaint)
 
-        // 中心点：极小，只用来对缝
-        dotPaint.style = Paint.Style.FILL
-        dotPaint.color = 0x99000000.toInt()
-        canvas.drawCircle(cx, cy, dp(CENTER_DOT_DP + 1f), dotPaint)
-        dotPaint.color = 0xFFF2F5FA.toInt()
-        canvas.drawCircle(cx, cy, dp(CENTER_DOT_DP), dotPaint)
-
-        // 实时百分比（定位时看趋势；精确值在主界面确认条上）
+        // 标签：方框正上方 4dp，纸底 + 2dp 墨边，mono 10sp
+        val name = ctx.getString(target.labelRes)
         val (fx, fy) = centerRatio()
-        val label = String.format(Locale.US, "%.1f / %.1f", fx * 100, fy * 100)
-        canvas.drawText(label, width / 2f, ringPx + dp(15f), labelPaint)
-    }
+        val value = String.format(Locale.US, "%.2f / %.2f", fx * 100, fy * 100)
+        labelNamePaint.color = ContextCompat.getColor(ctx, R.color.outline)
+        labelValuePaint.color = ContextCompat.getColor(ctx, R.color.brick)
+        val boxWidth = max(
+            labelNamePaint.measureText(name),
+            labelValuePaint.measureText(value)
+        ) + labelPadPx * 2f + dp(2f)
+        val boxLeft = cx - boxWidth / 2f
+        val boxRight = cx + boxWidth / 2f
+        val boxBottom = labelTopPx + labelHeightPx
 
-    private fun drawCross(canvas: Canvas, cx: Float, cy: Float) {
-        val inner = dp(CROSS_INNER_DP)
-        val outer = dp(CROSS_OUTER_DP)
-        canvas.drawLine(cx - outer, cy, cx - inner, cy, ringPaint)
-        canvas.drawLine(cx + inner, cy, cx + outer, cy, ringPaint)
-        canvas.drawLine(cx, cy - outer, cx, cy - inner, ringPaint)
-        canvas.drawLine(cx, cy + inner, cx, cy + outer, ringPaint)
+        labelBgPaint.color = ContextCompat.getColor(ctx, R.color.paper)
+        canvas.drawRect(boxLeft, labelTopPx, boxRight, boxBottom, labelBgPaint)
+        framePaint.color = ContextCompat.getColor(ctx, R.color.outline)
+        canvas.drawRect(
+            boxLeft + inset,
+            labelTopPx + inset,
+            boxRight - inset,
+            boxBottom - inset,
+            framePaint
+        )
+
+        val nameBaseline = labelTopPx + labelPadPx - labelNamePaint.fontMetrics.ascent
+        val valueBaseline = nameBaseline + labelNamePaint.fontSpacing
+        canvas.drawText(name, cx, nameBaseline, labelNamePaint)
+        canvas.drawText(value, cx, valueBaseline, labelValuePaint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -265,7 +298,7 @@ class CalibrationMarker(
         val minX = b.left + widthPx / 2.0
         val maxX = b.right - widthPx / 2.0
         val minY = b.top.toDouble()   // 允许拖到屏幕最顶（上半圈可能被状态栏压住，靠数值/微调对缝）
-        val maxY = b.bottom - (heightPx - ringPx / 2.0)
+        val maxY = b.bottom - (heightPx - centerOffsetPx).toDouble()
         val nx = cx.coerceIn(minX, maxX)
         val ny = cy.coerceIn(minY, maxY)
         if (nx != cx || ny != cy) alignCenterTo(nx, ny)
@@ -282,13 +315,14 @@ class CalibrationMarker(
     private fun dp(v: Float): Float = v * density
 
     companion object {
-        private const val WIDTH_DP = 52f
-        private const val HEIGHT_DP = 74f
-        private const val RING_DP = 52f
-        private const val RING_STROKE_DP = 1.2f
-        private const val CROSS_STROKE_DP = 1.0f
-        private const val CROSS_INNER_DP = 6f
-        private const val CROSS_OUTER_DP = 17f
+        // 宽度要容得下目标名称与百分比
+        private const val WIDTH_DP = 120f
+        private const val SQUARE_DP = 52f
+        private const val SQUARE_STROKE_DP = 2f
+        private const val CROSS_LEN_DP = 17f
+        private const val CROSS_STROKE_DP = 1.5f
         private const val CENTER_DOT_DP = 1.3f
+        private const val LABEL_GAP_DP = 4f
+        private const val LABEL_TEXT_DP = 10f
     }
 }

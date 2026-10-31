@@ -22,7 +22,24 @@ enum class TapPoint(
     EXIT("tap_exit", 0.152, 0.065, R.string.calib_target_exit),
 
     /** 匹配中页面左上角「<」＝放弃匹配返回。 */
-    MATCH_BACK("tap_match_back", 0.071, 0.065, R.string.calib_target_match_back);
+    MATCH_BACK("tap_match_back", 0.071, 0.065, R.string.calib_target_match_back),
+
+    // ---------- 每日单词打卡（学习页） ----------
+
+    /** 学习页四个选项块之一：左上（列表顺序 0）。 */
+    DAKA_OPT_TL("tap_daka_opt_tl", 0.260, 0.738, R.string.calib_target_daka_tl),
+
+    /** 学习页四个选项块之一：右上（列表顺序 1）。 */
+    DAKA_OPT_TR("tap_daka_opt_tr", 0.740, 0.738, R.string.calib_target_daka_tr),
+
+    /** 学习页四个选项块之一：左下（列表顺序 2）。 */
+    DAKA_OPT_BL("tap_daka_opt_bl", 0.260, 0.868, R.string.calib_target_daka_bl),
+
+    /** 学习页四个选项块之一：右下（列表顺序 3）。 */
+    DAKA_OPT_BR("tap_daka_opt_br", 0.740, 0.868, R.string.calib_target_daka_br),
+
+    /** 词详解页右下角「继续」。 */
+    DAKA_CONTINUE("tap_daka_continue", 0.826, 0.955, R.string.calib_target_daka_continue);
 
     private val keyX: String get() = prefKey + "_x"
     private val keyY: String get() = prefKey + "_y"

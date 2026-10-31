@@ -21,6 +21,24 @@ class TapPointTest {
     }
 
     @Test
+    fun dakaPointsUnsetFallBackToDefaults() {
+        val prefs = FakePrefs()
+        val expected = mapOf(
+            TapPoint.DAKA_OPT_TL to (0.260 to 0.738),
+            TapPoint.DAKA_OPT_TR to (0.740 to 0.738),
+            TapPoint.DAKA_OPT_BL to (0.260 to 0.868),
+            TapPoint.DAKA_OPT_BR to (0.740 to 0.868),
+            TapPoint.DAKA_CONTINUE to (0.826 to 0.955)
+        )
+        for ((point, xy) in expected) {
+            assertFalse(point.isCalibrated(prefs))
+            val (x, y) = point.resolve(prefs)
+            assertEquals(xy.first, x, 1e-9)
+            assertEquals(xy.second, y, 1e-9)
+        }
+    }
+
+    @Test
     fun savedValueWins() {
         val prefs = FakePrefs()
         TapPoint.PK.save(prefs, 0.2024, 0.5312)

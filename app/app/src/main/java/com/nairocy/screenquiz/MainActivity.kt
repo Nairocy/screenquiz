@@ -15,6 +15,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -38,7 +39,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.switchmaterial.SwitchMaterial
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -55,15 +55,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var enableButton: MaterialButton
     private lateinit var dictCount: TextView
     private lateinit var learnedCount: TextView
-    private lateinit var modeSwitch: SwitchMaterial
-    private lateinit var modeHint: TextView
-    private lateinit var overlaySwitch: SwitchMaterial
+    private lateinit var dakaSummary: TextView
+    private lateinit var overlaySwitch: SquareSwitch
+    private lateinit var dakaSwitch: SquareSwitch
     private lateinit var overlayHint: TextView
     private lateinit var battleTypeGroup: MaterialButtonToggleGroup
     private lateinit var roundsMinus: ImageView
     private lateinit var roundsPlus: ImageView
     private lateinit var roundsInput: EditText
     private lateinit var logScroll: NestedScrollView
+    private lateinit var rootScroll: NestedScrollView
     private lateinit var logView: TextView
     private lateinit var versionChip: TextView
     private lateinit var learnedCard: View
@@ -80,6 +81,7 @@ class MainActivity : AppCompatActivity() {
 
     // 点击位置校准
     private lateinit var calibSummary: TextView
+    private lateinit var calibDakaOptsValue: TextView
     private lateinit var calibLayer: FrameLayout
     private lateinit var calibPanel: View
     private lateinit var calibScrim: View
@@ -103,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     private var dotAnimator: ObjectAnimator? = null
+    private var hasAnimated = false
 
     private val handler = Handler(Looper.getMainLooper())
     private val refreshRunnable = object : Runnable {
@@ -121,10 +124,19 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        val rootScroll = findViewById<NestedScrollView>(R.id.root_scroll)
+        rootScroll = findViewById(R.id.root_scroll)
+        // 只在第一次拿到系统栏 inset 时应用 padding：
+        // overlay 窗口（悬浮球/打卡球）增删会重新分发 insets，每次都 setPadding 会改变
+        // ScrollView 的内容高度 → 滚动位置被 clamp → 点开关时整页「抽搐」（真机实测）
+        var rootBarPaddingApplied = false
         ViewCompat.setOnApplyWindowInsetsListener(rootScroll) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, bars.bottom)
+            if (!rootBarPaddingApplied) {
+                val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                if (bars.top > 0 || bars.bottom > 0) {
+                    view.setPadding(0, bars.top, 0, bars.bottom)
+                    rootBarPaddingApplied = true
+                }
+            }
             insets
         }
 
@@ -137,9 +149,9 @@ class MainActivity : AppCompatActivity() {
         enableButton = findViewById(R.id.enable_service)
         dictCount = findViewById(R.id.dict_count)
         learnedCount = findViewById(R.id.learned_count)
-        modeSwitch = findViewById(R.id.mode_switch)
-        modeHint = findViewById(R.id.mode_hint)
+        dakaSummary = findViewById(R.id.daka_summary)
         overlaySwitch = findViewById(R.id.overlay_switch)
+        dakaSwitch = findViewById(R.id.daka_switch)
         overlayHint = findViewById(R.id.overlay_hint)
         battleTypeGroup = findViewById(R.id.battle_type_group)
         roundsMinus = findViewById(R.id.rounds_minus)
@@ -171,7 +183,9 @@ class MainActivity : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(drawerPanel) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, bars.bottom)
+            if (view.paddingTop != bars.top || view.paddingBottom != bars.bottom) {
+                view.setPadding(0, bars.top, 0, bars.bottom)
+            }
             insets
         }
 
@@ -218,33 +232,53 @@ class MainActivity : AppCompatActivity() {
         calibValueViews[TapPoint.PK] = findViewById(R.id.calib_item_pk_value)
         calibValueViews[TapPoint.EXIT] = findViewById(R.id.calib_item_exit_value)
         calibValueViews[TapPoint.MATCH_BACK] = findViewById(R.id.calib_item_match_back_value)
+        calibValueViews[TapPoint.DAKA_CONTINUE] = findViewById(R.id.calib_daka_continue_value)
+        calibDakaOptsValue = findViewById(R.id.calib_daka_opts_value)
         ViewCompat.setOnApplyWindowInsetsListener(calibPanel) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(0, bars.top, 0, bars.bottom)
             insets
         }
         findViewById<View>(R.id.calib_row).setOnClickListener { openCalibDrawer() }
+        findViewById<View>(R.id.daka_row).setOnClickListener { openDakaOverlay() }
+        dakaSwitch.isChecked = AppPrefs.get(this).getBoolean(AppPrefs.KEY_DAKA_OVERLAY, false)
+        dakaSwitch.onCheckedChanged = { on ->
+            // 开关直接控制打卡浮窗的显隐（关掉后长按也收不起来，只能在这里重开）
+            val keepY = rootScroll.scrollY
+            AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_DAKA_OVERLAY, on).apply()
+            QuizAccessibilityService.instance?.syncDakaOverlay()
+            if (on) Toast.makeText(this, R.string.daka_shown, Toast.LENGTH_SHORT).show()
+            refreshDakaSummary()
+            rootScroll.post { rootScroll.scrollTo(0, keepY) }
+        }
         findViewById<ImageView>(R.id.calib_close).setOnClickListener { closeCalibDrawer() }
         calibScrim.setOnClickListener { closeCalibDrawer() }
         findViewById<View>(R.id.calib_item_pk).setOnClickListener { startCalib(TapPoint.PK) }
         findViewById<View>(R.id.calib_item_exit).setOnClickListener { startCalib(TapPoint.EXIT) }
         findViewById<View>(R.id.calib_item_match_back).setOnClickListener { startCalib(TapPoint.MATCH_BACK) }
+        findViewById<View>(R.id.calib_item_daka_opts).setOnClickListener {
+            startMultiCalib(
+                listOf(
+                    TapPoint.DAKA_OPT_TL,
+                    TapPoint.DAKA_OPT_TR,
+                    TapPoint.DAKA_OPT_BL,
+                    TapPoint.DAKA_OPT_BR
+                )
+            )
+        }
+        findViewById<View>(R.id.calib_item_daka_continue).setOnClickListener {
+            startCalib(TapPoint.DAKA_CONTINUE)
+        }
         findViewById<View>(R.id.calib_reset).setOnClickListener { resetCalibration() }
 
         enableButton.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
 
-        modeSwitch.isChecked = isAutoMode()
-        modeSwitch.setOnCheckedChangeListener { _, checked ->
-            AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_AUTO_MODE, checked).apply()
-            modeHint.setText(if (checked) R.string.mode_hint_auto else R.string.mode_hint_observe)
-            QuizAccessibilityService.instance?.engine?.setMode(engineMode())
-        }
-        modeHint.setText(if (modeSwitch.isChecked) R.string.mode_hint_auto else R.string.mode_hint_observe)
-
         overlaySwitch.isChecked = AppPrefs.get(this).getBoolean(AppPrefs.KEY_OVERLAY, true)
-        overlaySwitch.setOnCheckedChangeListener { _, checked ->
+        overlaySwitch.onCheckedChanged = { checked ->
+            // overlay 窗口增删会让 ScrollView 回到顶部（真机实测整页下移 440px）→ 切换前后保住滚动位置
+            val keepY = rootScroll.scrollY
             AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_OVERLAY, checked).apply()
             if (checked && !Settings.canDrawOverlays(this)) {
                 // 只在关->开时跳授权页
@@ -257,6 +291,7 @@ class MainActivity : AppCompatActivity() {
             }
             QuizAccessibilityService.instance?.syncOverlay()
             refreshOverlayHint()
+            rootScroll.post { rootScroll.scrollTo(0, keepY) }
         }
 
         battleTypeGroup.check(
@@ -294,14 +329,16 @@ class MainActivity : AppCompatActivity() {
                 service.engine.stop("user")
             } else if (service == null) {
                 Toast.makeText(this, R.string.service_required, Toast.LENGTH_SHORT).show()
-            } else if (service.calibrationSnapshot() != null) {
+            } else if (service.isCalibrating()) {
                 Toast.makeText(this, R.string.calib_busy_start, Toast.LENGTH_SHORT).show()
+            } else if (service.dakaEngine.running) {
+                LogBus.log("battle=busy_daka")
+                Toast.makeText(this, R.string.battle_busy_daka, Toast.LENGTH_SHORT).show()
             } else {
                 AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_ENGINE_RUNNING, true).apply()
-                service.engine.setMode(engineMode())
                 service.engine.battleType = currentBattleType()
                 service.engine.maxRounds = currentMaxRounds()
-                service.engine.start(engineMode())
+                service.engine.start(Engine.Mode.AUTO)
             }
             refreshRunStatus()
         }
@@ -319,6 +356,45 @@ class MainActivity : AppCompatActivity() {
         learnedCount.text = "0"
         refreshLearnedCount()
         refreshCalibUi()
+        playBlockEnterAnimation(savedInstanceState)
+    }
+
+    private fun playBlockEnterAnimation(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null || hasAnimated) return
+        hasAnimated = true
+        val blocks = listOf(
+            R.id.status_card,
+            R.id.service_card,
+            R.id.dict_card,
+            R.id.learned_card,
+            R.id.settings_card,
+            R.id.log_card,
+            R.id.stamp_card
+        ).map { findViewById<View>(it) }
+        val scale = Settings.Global.getFloat(
+            contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        )
+        if (scale == 0f) {
+            blocks.forEach {
+                it.alpha = 1f
+                it.translationY = 0f
+            }
+            return
+        }
+        val offset = 10f * resources.displayMetrics.density
+        blocks.forEachIndexed { index, view ->
+            view.alpha = 0f
+            view.translationY = offset
+            view.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(BLOCK_ANIM_MS)
+                .setStartDelay(index * BLOCK_STAGGER_MS)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
     }
 
     override fun onStart() {
@@ -339,6 +415,7 @@ class MainActivity : AppCompatActivity() {
         refreshRunStatus()
         refreshLearnedCount()
         refreshCalibUi()
+        refreshDakaSummary()
         QuizAccessibilityService.instance?.syncOverlay()
         refreshOverlayHint()
         handleCalibIntent()
@@ -410,7 +487,8 @@ class MainActivity : AppCompatActivity() {
         actionButton.setTextColor(ContextCompat.getColor(this, R.color.on_accent))
         runDot.backgroundTintList = ContextCompat.getColorStateList(
             this,
-            if (running) R.color.success else R.color.text_secondary
+            // 方正主义：状态点在海军蓝 hero 块上，停止=芥黄（待机提示）、运行=纸白（高对比）
+            if (running) R.color.paper else R.color.mustard
         )
         if (running) startBreathing() else stopBreathing()
     }
@@ -446,11 +524,25 @@ class MainActivity : AppCompatActivity() {
         return flat.split(':').any { it.equals(mine, ignoreCase = true) }
     }
 
-    private fun isAutoMode(): Boolean =
-        AppPrefs.get(this).getBoolean(AppPrefs.KEY_AUTO_MODE, false)
+    // ---------- 每日单词打卡 ----------
 
-    private fun engineMode(): Engine.Mode =
-        if (modeSwitch.isChecked) Engine.Mode.AUTO else Engine.Mode.OBSERVE
+    /** 点入口：打开打卡浮窗（长按浮窗收起）。 */
+    private fun openDakaOverlay() {
+        AppPrefs.get(this).edit().putBoolean(AppPrefs.KEY_DAKA_OVERLAY, true).apply()
+        if (::dakaSwitch.isInitialized) dakaSwitch.isChecked = true
+        QuizAccessibilityService.instance?.syncDakaOverlay()
+        Toast.makeText(this, R.string.daka_shown, Toast.LENGTH_LONG).show()
+    }
+
+    private fun refreshDakaSummary() {
+        if (!::dakaSummary.isInitialized) return
+        val engine = QuizAccessibilityService.instance?.dakaEngine
+        dakaSummary.text = if (engine?.running == true) {
+            getString(R.string.daka_summary_running, engine.answered)
+        } else {
+            getString(R.string.daka_summary_idle)
+        }
+    }
 
     private fun currentBattleType(): String =
         if (battleTypeGroup.checkedButtonId == R.id.type_practice) {
@@ -547,6 +639,36 @@ class MainActivity : AppCompatActivity() {
         launchBaicizhan()
     }
 
+    /** 多点校准入口：一次摆 4 个准星（与单点校准同样的前置检查）。 */
+    private fun startMultiCalib(targets: List<TapPoint>) {
+        val service = QuizAccessibilityService.instance
+        if (service == null) {
+            toast(R.string.calib_need_service)
+            return
+        }
+        if (service.engine.running || service.dakaEngine.running) {
+            toast(R.string.calib_need_stop)
+            return
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            toast(R.string.calib_need_overlay)
+            startActivity(
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+            )
+            return
+        }
+        if (!service.startMultiCalibration(targets)) {
+            toast(R.string.calib_need_service)
+            return
+        }
+        closeCalibDrawer()
+        Toast.makeText(this, R.string.calib_multi_hint, Toast.LENGTH_LONG).show()
+        launchBaicizhan()
+    }
+
     private fun launchBaicizhan() {
         val intent = packageManager.getLaunchIntentForPackage(TapPoint.BAICIZHAN_PACKAGE)
         if (intent == null) {
@@ -577,10 +699,14 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.calib_value_default_fmt, fx * 100, fy * 100)
             }
         }
+        // 四个选项块是一组：只显示「N / 4 已校准」
+        val dakaOptsCalibrated = DAKA_OPT_POINTS.count { it.isCalibrated(prefs) }
+        calibDakaOptsValue.text =
+            getString(R.string.calib_daka_opts_value_fmt, dakaOptsCalibrated)
         calibSummary.text = if (calibrated == 0) {
             getString(R.string.calib_summary_default)
         } else {
-            getString(R.string.calib_summary_fmt, calibrated)
+            getString(R.string.calib_summary_fmt, calibrated, TapPoint.values().size)
         }
     }
 
@@ -908,8 +1034,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
         currentState.setText(label)
-        currentState.setBackgroundResource(chip)
-        currentState.setTextColor(ContextCompat.getColor(this, color))
+        // 方正主义：状态是海军蓝 hero 块上的 30sp/800 大字，**不套 chip**（chip 只留给 run_status 小标签）；
+        // 颜色只用于区分「运行中 / 异常 / 空闲」，且都在海军蓝底上可读
+        val emphasis = when (raw?.trim()?.uppercase()) {
+            "MATCHING", "IN_GAME", "SETTLE" -> R.color.mustard
+            else -> R.color.paper
+        }
+        currentState.setBackgroundResource(0)
+        currentState.setTextColor(ContextCompat.getColor(this, emphasis))
     }
 
     companion object {
@@ -919,7 +1051,15 @@ class MainActivity : AppCompatActivity() {
         private const val MAX_ROUNDS = 99
         private const val DRAWER_MS = 220L
         private const val DRAWER_HIDDEN_X = 10_000f
+        private const val BLOCK_ANIM_MS = 500L
+        private const val BLOCK_STAGGER_MS = 40L
         private const val EXTRA_CALIB = "calib"
         private const val EXTRA_STAY = "stay"
+        private val DAKA_OPT_POINTS = listOf(
+            TapPoint.DAKA_OPT_TL,
+            TapPoint.DAKA_OPT_TR,
+            TapPoint.DAKA_OPT_BL,
+            TapPoint.DAKA_OPT_BR
+        )
     }
 }
