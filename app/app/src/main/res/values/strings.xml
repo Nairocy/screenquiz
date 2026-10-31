@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">读屏答题</string>
+    <string name="svc_desc">读取百词斩对局题目与选项，用于端侧自动答题（全端侧、不联网）。</string>
+
+    <string name="header_subtitle">百词斩单词对战 · 全端侧自动答题</string>
+    <string name="settings_label">设置</string>
+    <string name="stat_dict_label">词典条目</string>
+    <string name="stat_learned_label">已学习词条</string>
+
+    <string name="service_label">无障碍服务</string>
+    <string name="service_on">已开启</string>
+    <string name="service_off">未开启</string>
+    <string name="enable_service">去开启</string>
+    <string name="current_state">当前状态：%1$s</string>
+    <string name="log_label">实时日志</string>
+    <string name="log_empty">暂无日志</string>
+
+    <string name="state_idle">待机</string>
+    <string name="state_hub">主页</string>
+    <string name="state_practice">练习赛页</string>
+    <string name="state_matching">匹配中</string>
+    <string name="state_in_game">对局中</string>
+    <string name="state_settle">结算</string>
+    <string name="state_wordbook">错词本</string>
+    <string name="state_transition">过场</string>
+    <string name="state_unknown">未知</string>
+
+    <string name="mode_auto">自动点击模式（AUTO）</string>
+    <string name="mode_hint_observe">当前 OBSERVE：只判定记日志，不点击</string>
+    <string name="mode_hint_auto">当前 AUTO：判定后自动点选、自动循环</string>
+    <string name="start">开始对战</string>
+    <string name="stop">停止运行</string>
+    <string name="service_required">请先开启无障碍服务</string>
+    <string name="run_status">运行状态：%1$s</string>
+    <string name="run_on">运行中</string>
+    <string name="run_off">已停止</string>
+    <string name="overlay_label">悬浮球</string>
+    <string name="overlay_hint_on">单击：开/关引擎；拖动：挪位置；长按：打开本应用</string>
+    <string name="overlay_hint_off">已关闭悬浮球</string>
+    <string name="overlay_hint_perm">需要「显示在其他应用上层」权限，点上面的开关会跳转授权</string>
+    <string name="battle_type_label">对战类型</string>
+    <string name="type_rank">排位赛</string>
+    <string name="type_practice">练习赛</string>
+    <string name="rounds_label">循环局数</string>
+    <string name="rounds_minus_desc">减少局数</string>
+    <string name="rounds_plus_desc">增加局数</string>
+    <string name="rounds_hint">1＝只跑一局</string>
+
+    <string name="learned_drawer_title">已学习词条</string>
+    <string name="learned_search_hint">搜索单词或释义</string>
+    <string name="learned_empty">暂无已学习词条</string>
+    <string name="learned_empty_search">没有匹配的词条</string>
+    <string name="learned_count_fmt">共 %1$d 条</string>
+    <string name="learned_deleted">已删除 %1$s</string>
+    <string name="undo">撤销</string>
+    <string name="learned_hint">点数字卡查看已学单词，长按可删除纠错</string>
+    <string name="close">关闭</string>
+
+    <string name="words_export_desc">导出词库</string>
+    <string name="words_import_desc">导入词库</string>
+    <string name="export_done_fmt">已导出 %1$d 条 → %2$s</string>
+    <string name="export_failed">导出失败</string>
+    <string name="import_invalid">这个文件不是 ScreenQuiz 词库（缺 user_dict 表）</string>
+    <string name="import_choose_fmt">文件里有 %1$d 条词条，怎么导入？</string>
+    <string name="import_merge">合并导入（现有优先）</string>
+    <string name="import_replace">覆盖导入（清空现有）</string>
+    <string name="import_confirm_title">覆盖导入</string>
+    <string name="import_confirm_fmt">将清空现有 %1$d 条，改用文件里的 %2$d 条。确定？</string>
+    <string name="import_done_merge_fmt">合并完成：写入 %1$d 条（文件 %2$d 条）</string>
+    <string name="import_done_replace_fmt">已覆盖导入 %1$d 条</string>
+    <string name="import_failed">导入失败</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="state_home">百词斩首页</string>
+
+    <!-- 点击位置校准 -->
+    <string name="calib_label">点击位置校准</string>
+    <string name="calib_summary_default">未校准 · 全部默认</string>
+    <string name="calib_summary_fmt">已校准 %1$d / 3</string>
+    <string name="calib_hint">不同屏占比下画布按钮的位置会漂移。先把准星拖到目标按钮上，再切回本应用确定。</string>
+    <string name="calib_value_fmt">%1$.1f%% / %2$.1f%%</string>
+    <string name="calib_value_default_fmt">默认 %1$.1f%% / %2$.1f%%</string>
+    <string name="calib_target_pk">PK 入口</string>
+    <string name="calib_target_exit">对战页退出 X</string>
+    <string name="calib_target_match_back">匹配返回 &lt;</string>
+    <string name="calib_target_pk_desc">首页左下交叉剑（画布渲染，无文本）</string>
+    <string name="calib_target_exit_desc">左上角 X＝完全退出；左侧 &lt; 只退一层</string>
+    <string name="calib_target_match_back_desc">匹配中页面左上角返回箭头</string>
+    <string name="calib_banner_title">校准中 · %1$s</string>
+    <string name="calib_hud_hint">拖准星对准按钮；按住本条空白处可拖动，避免挡住目标；「试一下」直接验证落点</string>
+    <string name="calib_hud_drag">拖动校准条</string>
+    <string name="calib_banner_hint">拖动准星对准按钮，切回本应用后点确定</string>
+    <string name="calib_saved_fmt">已保存 %1$s 的位置</string>
+    <string name="calib_need_service">请先开启无障碍服务</string>
+    <string name="calib_need_stop">请先停止运行，再校准点击位置</string>
+    <string name="calib_need_overlay">需要「显示在其他应用上层」权限</string>
+    <string name="calib_app_missing">没找到百词斩应用</string>
+    <string name="calib_reposition">重摆</string>
+    <string name="calib_reset_all">恢复全部默认</string>
+    <string name="calib_reset_done">已恢复默认坐标</string>
+    <string name="calib_nudge_left">左移一像素</string>
+    <string name="calib_nudge_right">右移一像素</string>
+    <string name="calib_nudge_up">上移一像素</string>
+    <string name="calib_nudge_down">下移一像素</string>
+    <string name="calib_nudge_hint">微调 1px</string>
+    <string name="calib_nudge_short">1px</string>
+    <string name="calib_test">试一下</string>
+    <string name="calib_test_done">已点</string>
+    <string name="calib_started_fmt">校准 %1$s：拖准星对准按钮，点悬浮条上的确定保存</string>
+    <string name="calib_busy_start">先确定或取消当前校准，再开始对战</string>
+</resources>

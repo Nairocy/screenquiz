@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_window">#0E1116</color>
+    <color name="surface_card">#161A21</color>
+    <color name="surface_inset">#1D2229</color>
+    <color name="outline">#262D36</color>
+    <color name="text_primary">#E9ECF1</color>
+    <color name="text_secondary">#8B94A2</color>
+    <color name="log_text">#9AA4B2</color>
+    <color name="accent">#3D6EF0</color>
+    <color name="on_accent">#FFFFFF</color>
+    <color name="success">#34C177</color>
+    <color name="danger">#FF6369</color>
+    <color name="chip_accent_bg">#1E2740</color>
+    <color name="chip_success_bg">#14301F</color>
+    <color name="chip_danger_bg">#35191C</color>
+</resources>
