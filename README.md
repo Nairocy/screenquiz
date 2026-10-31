@@ -18,7 +18,7 @@
 
 ## 下载
 
-预构建 APK 与作者自用词库（6,844 词）见 [Releases](https://github.com/Nairocy/screenquiz/releases)。
+预构建 APK 与作者自用词库（6,844 词）见 [Releases](https://github.com/Nairocy/wordslasher/releases)。
 
 ## 构建
 
